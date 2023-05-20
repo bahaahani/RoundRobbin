@@ -1,3 +1,10 @@
+/*
+ *          Round Robin Scheduling Algorithm
+ * Name: Bahaa Hani xxxxxxx     ID: xxxxxxxxx   Section: x
+ * Name: Sayed Ahmed Khalaf     ID: 202007602   Section:2 
+ * Name: xxxxxxxxxxxxxxxxxx     ID: xxxxxxxxx   Section:x 
+ * Name: xxxxxxxxxxxxxxxxxx     ID: xxxxxxxxx   Section:x 
+ */
 
 import java.util.ArrayList;
 import java.util.LinkedList;
