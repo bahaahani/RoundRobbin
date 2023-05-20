@@ -1,157 +1,275 @@
-import java.util.*;
-//FAKE NOT WORKING!!!!
+/*           Round Robin Scheduling Algorithm
+ * Name: Bahaa Hani xxxxxxx     ID: xxxxxxxxx   Section: x
+ * Name: Sayed Ahmed Khalaf     ID: 202007602   Section:2 
+ * Name: xxxxxxxxxxxxxxxxxx     ID: xxxxxxxxx   Section:x 
+ * Name: xxxxxxxxxxxxxxxxxx     ID: xxxxxxxxx   Section:x 
+*/
+
+ // Required Classes
+import java.util.Scanner;
+import java.util.ArrayList;
+import java.util.Queue;
+import java.util.LinkedList;
+
 public class RoundRobin {
-    public static void main(String[] args) {
-        int quantum;
-        ArrayList<Integer> processID = new ArrayList<>();
-        ArrayList<Integer> arrivalTime = new ArrayList<>();
-        ArrayList<Integer> burstTime = new ArrayList<>();
+    public static void main(String[] args){
 
-        quantum = getInput(processID, arrivalTime, burstTime);
+        // Creating A Scanner Object To Get User Input
+        Scanner input = new Scanner(System.in);
 
-        sortByArrivalTime(processID, arrivalTime, burstTime);
+        // Declarations
+        int timeQuantum, inputPID, inputArrivalTime, inputBurstTime;
+        boolean stop = false;
+        ArrayList<Integer> processID = new ArrayList<Integer>();
+        ArrayList<Integer> arrivalTime = new ArrayList<Integer>();
+        ArrayList<Integer> burstTime = new ArrayList<Integer>();
 
-        int[] start = new int[arrivalTime.size()];
-        int[] finish = new int[arrivalTime.size()];
-        Queue<Integer> ganttChartProcessList = new LinkedList<>();
-        Queue<Integer> timeLine = new LinkedList<>();
-        ArrayList<Integer> readyQueue = new ArrayList<>();
+        System.out.println("\n\tRound Robin Scheduling Algorithm\t\n");
+    
+        // Quantum Time Input
+        System.out.print("Enter the time quantum (q) = ");
+        timeQuantum = input.nextInt();
 
-        executeProcesses(processID, arrivalTime, burstTime, quantum, start, finish, ganttChartProcessList, timeLine, readyQueue);
+        /*
+            Process Information Input (processes identifier, arrival time, and burst time)
+            Inputing 0 0 0 exits the loop, and thus stopping the input   
+        */  
+        System.out.println();  
+        System.out.println("Enter The Process IDs, Arrival Times, and Burst times:\n" + "(Entering Three Consecutive 0's Stops The Input)");
 
-        printResults(processID, arrivalTime, burstTime, start, finish, ganttChartProcessList, timeLine);
-    }
+        while (!stop) {
+            // Reading User Input
+            inputPID = input.nextInt();
+            inputArrivalTime = input.nextInt();
+            inputBurstTime = input.nextInt();
 
-    public static int getInput(ArrayList<Integer> processID, ArrayList<Integer> arrivalTime, ArrayList<Integer> burstTime) {
-        Scanner kb = new Scanner(System.in);
-        int quantum;
-        System.out.println("Enter quantum number:");
-        quantum = kb.nextInt();
-        System.out.println("Enter process ID, arrival time and burst time; enter 0 0 0 to stop.");
-        while (true) {
-            int enteredProcessID = kb.nextInt();
-            int enteredArrivalTime = kb.nextInt();
-            int enteredBurstTime = kb.nextInt();
-            if (enteredProcessID == 0 && enteredArrivalTime == 0 && enteredBurstTime == 0) {
-                break;
+            // Checking End Of Input
+            if (inputPID == 0 && inputArrivalTime == 0 && inputBurstTime == 0) {
+            	stop = true;
             }
-            processID.add(enteredProcessID);
-            arrivalTime.add(enteredArrivalTime);
-            burstTime.add(enteredBurstTime);
-        }
-        return quantum;
-    }
-
-    public static void sortByArrivalTime(ArrayList<Integer> processID, ArrayList<Integer> arrivalTime, ArrayList<Integer> burstTime) {
-        int n = arrivalTime.size();
-        for (int i = 0; i < n - 1; i++) {
-            for (int j = 0; j < n - i - 1; j++) {
-                if (arrivalTime.get(j) > arrivalTime.get(j + 1)) {
-                    swap(j, j + 1, arrivalTime);
-                    swap(j, j + 1, burstTime);
-                    swap(j, j + 1, processID);
-                }
+            // Adding Process Information To Its Corresponding ArrayList 
+            else {
+                processID.add(inputPID);
+                arrivalTime.add(inputArrivalTime);
+                burstTime.add(inputBurstTime);
             }
         }
-    }
+        
+        /*
+            Sorting The Processess Based on Arrival Time (Using Bubble Sort Algorithm)
+            And Updating the ArrayLists, So That Their Proper Mapping Still Holds.
+        */
+        int numOfProcesses = processID.size();
+		for (int i = 0; i < numOfProcesses-1; i++) 
+			for (int j = 0; j < numOfProcesses-i-1; j++) 
+				if (arrivalTime.get(j) > arrivalTime.get(j+1)) {
 
-    public static void swap(int i, int j, ArrayList<Integer> list) {
-        int temp = list.get(i);
-        list.set(i, list.get(j));
-        list.set(j, temp);
-    }
+                    // Storing The Process Information In Temporary Variables
+					int tempArrivalTime = arrivalTime.get(j);
+					int tempBurstTime = burstTime.get(j);
+					int tempProcessesID = processID.get(j);
 
-    public static void executeProcesses(ArrayList<Integer> processID, ArrayList<Integer> arrivalTime, ArrayList<Integer> burstTime, int quantum, int[] start, int[] finish, Queue<Integer> ganttChartProcessList, Queue<Integer> timeLine, ArrayList<Integer> readyQueue) {
-        int currentRunningProcess;
-        int index;
-        int time = arrivalTime.get(0);
-        timeLine.add(time);
+					// Swap theirr arrival times
+ 					arrivalTime.set(j, arrivalTime.get(j+1));
+					arrivalTime.set(j+1, tempArrivalTime);
+					
+					// Updating The Burst Time ArrayList to the sorted order
+					burstTime.set(j, burstTime.get(j+1));
+					burstTime.set(j+1, tempBurstTime);
+					
+					// Updating The Process Identifier ArrayList to the sorted order
+					processID.set(j,  processID.get(j+1));
+					processID.set(j+1, tempProcessesID);
+				}
+				
+        /*
+            Declarations Necessary For Performing The Calculations
+        */ 
+        int timer=0, runningProcess=0, runningProcessIndex=0;
+		int[] startingTime = new int[arrivalTime.size()];
+        int[] finishedTime = new int[arrivalTime.size()];
+
+        // Declaring The Copy Arrays 
+        int[] arrivalTimeDup = new int[arrivalTime.size()];
+        int[] burstTimeDup = new int[burstTime.size()];
+        int[] processIDDup = new int[processID.size()];
+        /*
+            Copying The Previously Sorted ArrayLists Into The Duplicate Arrays
+            To Preserve The Original Values Entered By The User        
+        */ 
+        for (int i = 0; i < numOfProcesses; i++)
+        {
+            arrivalTimeDup[i] = arrivalTime.get(i);
+            burstTimeDup[i] = burstTime.get(i);
+            processIDDup[i] = processID.get(i);
+        }
+
+        /* 
+            Implementing The Queue Interface Using The LinkedList Class
+        */ 
+        // Storing The Time Sequence Of The Processes
+        Queue<Integer> timeSequence = new LinkedList<>();
+        // Storing The Process Sequence
+        Queue<Integer> processSequence = new LinkedList<>();
+
+        // Declaring The Ready Queue ArrayList
+        ArrayList<Integer> readyQueue = new ArrayList<Integer>();
+
+        // Adding The First Process To Arrive Into The Ready Queue 
+        timeSequence.add(arrivalTime.get(0));
         readyQueue.add(processID.get(0));
-        start[0] = arrivalTime.get(0);
-        while (!readyQueue.isEmpty()) {
-            currentRunningProcess = readyQueue.remove(0);
-            index = processID.indexOf(currentRunningProcess);
-            if (arrivalTime.get(index) <= time) {
-                if (!ganttChartProcessList.contains(processID.get(index)))
-                    start[index] = time;
-                if (burstTime.get(index) >= quantum) {
-                    ganttChartProcessList.add(processID.get(index));
-                    burstTime.set(index, burstTime.get(index) - quantum);
-                    time += quantum;
-                    timeLine.add(time);
-                    if (burstTime.get(index) == 0)
-                        finish[index] = time;
-                } else if (burstTime.get(index) < quantum && burstTime.get(index) != 0) {
-                    ganttChartProcessList.add(processID.get(index));
-                    time += burstTime.get(index);
-                    timeLine.add(time);
-                    burstTime.set(index, 0);
-                    finish[index] = time;
+        startingTime[0] = arrivalTime.get(0);
+
+        // Enter The Loop If There Exists Some Processes In The Ready Queue
+        while (readyQueue.size() > 0) {
+
+            // Remove The Process To Be The Next Running From The Ready Queue And Store Its Index
+            runningProcess = readyQueue.remove(0);
+            runningProcessIndex = processID.indexOf(runningProcess);
+
+            /*
+                Checking If The Arrival Time Of The Process To Run Is Possible
+                With Reference To The Timer. If It Is, Increment The Timer And 
+                Return The Process Back To the Ready Queue If the Queue Is Empty
+            */
+            if (arrivalTime.get(runningProcessIndex) > timer) {
+                timer++;
+                if (readyQueue.isEmpty()) {
+                    readyQueue.add(processID.get(runningProcessIndex));
+                }		
+            }
+
+            /*
+                If The Arrival Time Is Possible Then Enter The Else If Block
+            */
+            else if (arrivalTime.get(runningProcessIndex) <= timer) {
+
+                // Adding The Process Start Time, If It Is Its First CPU Visit   
+                if (!processSequence.contains(processID.get(runningProcessIndex))) {
+                    startingTime[runningProcessIndex] = timer;
+                }
+                
+
+                /*
+                    Else If It is less Than the Quantum Time, Run It For Its Burst Time and
+                    Store The Finish Time  
+                */
+                if (burstTime.get(runningProcessIndex) < timeQuantum && burstTime.get(runningProcessIndex) != 0) {
+                	processSequence.add(processID.get(runningProcessIndex));
+                    timer += burstTime.get(runningProcessIndex);
+                    timeSequence.add(timer);
+                    burstTime.set(runningProcessIndex, 0);
+                    finishedTime[runningProcessIndex] = timer;
                 }
 
-                if (burstTime.get(index) != 0) {
-                    for (int i = index+1; i<arrivalTime.size(); i++) {
-                        if (arrivalTime.get(i) <= time)
-                            if (!readyQueue.contains(processID.get(i)))
-                                readyQueue.add(processID.get(i));
+                /*
+                    If The Process Burst Time is Greater Than Quantum Time, Run it for 
+                    The Time Quantum While Decreasing Its Burst Time.
+                */
+                else if (burstTime.get(runningProcessIndex) >= timeQuantum) {
+                    processSequence.add(processID.get(runningProcessIndex));
+                    burstTime.set(runningProcessIndex, burstTime.get(runningProcessIndex) - timeQuantum);
+                    timer += timeQuantum;
+                    timeSequence.add(timer);
+                    /*
+                        If The  Process Burst Time is Equal To The Quantum Time, Run it for 
+                        The Time Quantum While Decreasing Its Burst Time and Store Its Finish Time.
+                    */
+                    if (burstTime.get(runningProcessIndex) == 0) {
+                        finishedTime[runningProcessIndex] = timer;
+                    }     
+                }
+                
+                /*
+                    Modifying The Ready Queue After The Running Of The Process. 
+                    If The Process Has Not Finished Execution, and
+                    If It Did Finish Execution
+                */
+                if (burstTime.get(runningProcessIndex) == 0) {
+                    for (int i = runningProcessIndex+1; i < numOfProcesses; i++) {
+                        /*
+                            If A New Process Arrived Add It To Ready, Followed By Adding 
+                            The Recently Run Process 
+                        */
+                        if (arrivalTime.get(i)<=timer && !readyQueue.contains(processID.get(i))) {
+                            readyQueue.add(processID.get(i));
+                        }
                     }
-                    readyQueue.add(currentRunningProcess);
-                } else {
-                    for (int i = index+1; i<arrivalTime.size(); i++) {
-                        if (arrivalTime.get(i) <= time)
-                            if (!readyQueue.contains(processID.get(i)))
-                                readyQueue.add(processID.get(i));
-                    }
-                    if (index == processID.size()-1 && readyQueue.isEmpty()) {
+                    /*
+                        If Reached The End Of The Processes ArrayList And Ready Queue Is
+                         Empty Add The First Process To Arrive Back
+                    */ 
+                	if (processID.indexOf(runningProcessIndex) == numOfProcesses-1 && readyQueue.isEmpty()) {
                         readyQueue.add(processID.get(0));
+                    } 
+                }
+                else { 
+                	for (int i = runningProcessIndex+1; i < numOfProcesses; i++) {
+                        /*
+                            If A New Process Arrived Add It To Ready, Followed By Adding 
+                            The Recently Run Process 
+                        */
+                        if (arrivalTime.get(i)<=timer && !readyQueue.contains(processID.get(i))) {
+                            readyQueue.add(processID.get(i)); 
+                        }      
                     }
-                }
-            } else if (arrivalTime.get(index) > time) {
-                time++;
-                if (readyQueue.isEmpty() || (readyQueue.size() == 1 && readyQueue.contains(currentRunningProcess))) {
-                    readyQueue.add(processID.get(index));
+                    // If No Process Arrived Just Add The Recently Run Process Into The Queue
+                    readyQueue.add(runningProcess);
                 }
             }
         }
-    }
 
-    public static void printResults(ArrayList<Integer> processID, ArrayList<Integer> arrivalTimeCopy, ArrayList<Integer> burstTimeCopy, int[] start, int[] finish, Queue<Integer> ganttChartProcessList, Queue<Integer> timeLine) {
+        /*
+            Displaying The Output 
+        */
+        // Displaying The Gantt Chart
+        System.out.println("\n");
+        System.out.println("The Gantt Chart Associated With The Entered Set Of Processes: ");
+        while (!timeSequence.isEmpty()) {
+            System.out.print(timeSequence.remove()+ " |P"+ processSequence.remove()+"| ");
 
-        System.out.println("Round Robin (RR) scheduling algorithm");
-        System.out.println("Gantt chart: ");
-        while (!timeLine.isEmpty()) {
-            System.out.print(timeLine.remove() + " | p" + ganttChartProcessList.remove() + " | ");
-            if (ganttChartProcessList.isEmpty()) {
-                System.out.print(timeLine.remove());
-            }
+            // Print The Last Element In The Time Sequence 
+            if (processSequence.isEmpty()) {
+                System.out.print(timeSequence.remove());
+            } 
         }
 
-        System.out.println();
-        System.out.println();
+        System.out.println("\n");
+
+        // Variable Declarations For Process Timings
         int waitingTime, turnAroundTime, responseTime;
-        double waitingTimeTotal = 0, turnAroundTimeTotal = 0, responseTimeTotal = 0;
-        int n = processID.size();
-        ArrayList<Integer> processIDCopy = new ArrayList<>(processID);
-        for (int i = 0; i<n; i++) {
-            responseTime = start[i] - arrivalTimeCopy.get(i);
-            responseTimeTotal += responseTime;
-            turnAroundTime = finish[i] - arrivalTimeCopy.get(i);
-            turnAroundTimeTotal += turnAroundTime;
-            waitingTime = turnAroundTime - burstTimeCopy.get(i);
-            waitingTimeTotal += waitingTime;
-            System.out.println("P" + processIDCopy.get(i) + ":");
-            System.out.println("--------------------");
+        float sumOfWaitingTime = 0.0f, sumOfTurnAroundTime = 0.0f, sumOfResponseTime = 0.0f;
+        
+        for (int i = 0; i < numOfProcesses; i++) {
+
+            // Calculating The Different Times
+            responseTime = startingTime[i] - arrivalTimeDup[i];
+            turnAroundTime = finishedTime[i] - arrivalTimeDup[i];
+            waitingTime = finishedTime[i] - arrivalTimeDup[i] - burstTimeDup[i];
+
+            // Adding The Times to The Sum Variables
+            sumOfResponseTime += responseTime;
+            sumOfTurnAroundTime += turnAroundTime;
+            sumOfWaitingTime += waitingTime;
+
+            // Printing The Information Of Each Process
+            System.out.println("P" + processIDDup[i] + ": ");
             System.out.println("Turnaround Time = " + turnAroundTime);
             System.out.println("Response Time = " + responseTime);
             System.out.println("Waiting Time = " + waitingTime);
-            System.out.println("---------------------");
-            System.out.println();
-
+            System.out.println("\n");
         }
+
         System.out.println();
-        System.out.println("Average Time for all processes:");
-        System.out.println("Turnaround time average: " + turnAroundTimeTotal/n);
-        System.out.println("Response time average: " + responseTimeTotal/n);
-        System.out.println("Waiting time average: " + waitingTimeTotal/n);
+
+        // Calculating The Averages And Printing Them
+        float avgTurnAroundTime = sumOfTurnAroundTime / numOfProcesses;
+        float avgResponseTime = sumOfResponseTime / numOfProcesses;
+        float avgWaitingTime = sumOfWaitingTime / numOfProcesses;
+
+        System.out.println("Average Turnaround Time = " + avgTurnAroundTime);
+        System.out.println("Average Response Time = " + avgResponseTime);
+        System.out.println("Average Waiting Time = " + avgWaitingTime);
+        System.out.println("\n");
     }
 }
