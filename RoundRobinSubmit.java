@@ -26,7 +26,7 @@ public class RoundRobinSubmit {
         ArrayList<Integer> burstTime = new ArrayList<Integer>();
         ArrayList<Integer> readyQueue = new ArrayList<Integer>();
 
-        System.out.println("\tRound Robin Scheduling Algorithm\t");
+        System.out.println("\n\tRound Robin Scheduling Algorithm\t\n");
     
         // Quantum Time Input
         System.out.print("Enter the time quantum (q) = ");
@@ -35,10 +35,11 @@ public class RoundRobinSubmit {
         /*
             Process Information Input (processes identifier, arrival time, and burst time)
             Inputing 0 0 0 exits the loop, and thus stopping the input   
-        */    
-        System.out.println("Enter Process ID, Arrival Time, and Burst time:\n" + "(Entering 0 0 0 Stops Input Acceptance)");
-        while (!exit) {
+        */  
+        System.out.println();  
+        System.out.println("Enter Process ID, Arrival Time, and Burst time:\n" + "(Entering Three Consecutive 0's Stops The Input)");
 
+        while (!exit) {
             // Reading User Input
             enteredProcessID = kb.nextInt();
             enteredArrivalTime = kb.nextInt();
@@ -57,7 +58,7 @@ public class RoundRobinSubmit {
         }
         
         /*
-            Sorting The Processess Based on Arrival Time (Using Bubble Sort Algorithm )
+            Sorting The Processess Based on Arrival Time (Using Bubble Sort Algorithm)
             And Updating the ArrayLists, So That Their Proper Mapping Still Holds.
         */
         int numOfProcesses = processID.size();
@@ -137,22 +138,26 @@ public class RoundRobinSubmit {
                 }
                 
                 /*
-                    * If The Process Burst Time is Greater Than Quantum Time, Run it for 
+                    If The Process Burst Time is Greater Than Quantum Time, Run it for 
                     The Time Quantum While Decreasing Its Burst Time.
-                    * If The  Process Burst Time is Equal To The Quantum Time, Run it for 
-                    The Time Quantum While Decreasing Its Burst Time and Store Its Finish Time.
-                    * Else If It is less Than the Quantum Time, Run It For Its Burst Time and
-                    Store The Finish Time
                 */
                 if (burstTime.get(currentRunningIndex) >= quantum) {
                     ganttChartProcessList.add(processID.get(currentRunningIndex));
                     burstTime.set(currentRunningIndex, burstTime.get(currentRunningIndex) - quantum);
                     time += quantum;
                     timeLine.add(time);
+                    /*
+                        If The  Process Burst Time is Equal To The Quantum Time, Run it for 
+                        The Time Quantum While Decreasing Its Burst Time and Store Its Finish Time.
+                    */
                     if (burstTime.get(currentRunningIndex) == 0) {
                         finish[currentRunningIndex] = time;
                     }     
                 }
+                /*
+                    Else If It is less Than the Quantum Time, Run It For Its Burst Time and
+                    Store The Finish Time  
+                */
                 else if (burstTime.get(currentRunningIndex) < quantum && burstTime.get(currentRunningIndex) != 0) {
                 	ganttChartProcessList.add(processID.get(currentRunningIndex));
                     time += burstTime.get(currentRunningIndex);
@@ -218,9 +223,7 @@ public class RoundRobinSubmit {
         */
         // Displaying The Gantt Chart
         System.out.println("The Gantt Chart Associated With The Given Set Of Processes: ");
-        while (!timeLine.isEmpty())
-        {
-
+        while (!timeLine.isEmpty()) {
             System.out.print(timeLine.remove()+ " | p"+ ganttChartProcessList.remove()+" | ");
             if (ganttChartProcessList.isEmpty()) {
                 System.out.print(timeLine.remove());
@@ -231,7 +234,7 @@ public class RoundRobinSubmit {
 
         // Variable Declarations
         int waitingTime, turnAroundTime, responseTime;
-        int sumOfWaitingTime = 0, sumOfTurnAroundTime = 0, sumOfResponseTime = 0;
+        float sumOfWaitingTime = 0.0f, sumOfTurnAroundTime = 0.0f, sumOfResponseTime = 0.0f;
         
         for (int i = 0; i<arrivalTime.size(); i++) {
 
@@ -260,9 +263,9 @@ public class RoundRobinSubmit {
         System.out.println("\n");
 
         // Calculating The Averages And Printing Them
-        float avgTurnAroundTime = sumOfTurnAroundTime/numOfProcesses;
-        float avgResponseTime = sumOfResponseTime/numOfProcesses;
-        float avgWaitingTime = sumOfWaitingTime/numOfProcesses;
+        float avgTurnAroundTime = sumOfTurnAroundTime / numOfProcesses;
+        float avgResponseTime = sumOfResponseTime / numOfProcesses;
+        float avgWaitingTime = sumOfWaitingTime / numOfProcesses;
 
         System.out.println("Average Time for all processes:");
         System.out.println("Average Turnaround Time = " + avgTurnAroundTime);
