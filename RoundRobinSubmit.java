@@ -1,6 +1,6 @@
 /*
  *          Round Robin Scheduling Algorithm
- * Name: Bahaa Hani Ahmed     ID: 202009254   Section: x
+ * Name: Bahaa Hani Ahmed     ID: 202009254   Section: 1
  * Name: Sayed Ahmed Khalaf     ID: 202007602   Section:2 
  * Name: xxxxxxxxxxxxxxxxxx     ID: xxxxxxxxx   Section:x 
  * Name: xxxxxxxxxxxxxxxxxx     ID: xxxxxxxxx   Section:x 
